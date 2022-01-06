@@ -1,0 +1,1 @@
+python3 train_model.py 2>&1 | tee -a train_model.log

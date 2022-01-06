@@ -1,0 +1,1 @@
+python3 infer.py 2>&1 | tee -a infer.log
