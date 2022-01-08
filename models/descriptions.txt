@@ -1,0 +1,120 @@
+
+----------------- 3 -----------------
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     4
+Epochs:         10000
+Loss:           MSE
+Weights saved:  Last
+
+MSE: 11062077.07199623
+MAPE: 15.54461864
+
+
+----------------- 4 -----------------
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     16
+Epochs:         25000
+Loss:           MSE
+Weights saved:  Last
+
+MSE: 14251246.80268099
+MAPE: 17.8639009
+
+
+----------------- 5 ----------------- (same as 3?)
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     4
+Epochs:         10000
+Loss:           MSE
+Weights saved:  Last
+
+MSE: 15657578.2403037
+MAPE: 19.61766988
+
+
+----------------- 6 -----------------
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     16
+Epochs:         10000
+Loss:           MSE
+Weights saved:  Last
+
+MSE: 10804126.13547013
+MAPE: 15.67118791
+
+
+----------------- 7 -----------------
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     16
+Epochs:         10000
+Loss:           MAPE
+Weights saved:  Last
+
+MSE: 6957535.98295896
+MAPE: 9.82190388
+
+
+----------------- 8 -----------------
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     16
+Epochs:         10000
+Loss:           MAPE
+Weights saved:  Best
+
+MSE: 3398386.8143722
+MAPE: 6.37373719
+
+
+----------------- 9 -----------------
+Data:           BTC/USDT 1D
+Params:         1503001
+Batch size:     32
+Epochs:         10000
+Loss:           MAPE
+Weights saved:  Best
+
+MSE: 4012193.74614199
+MAPE: 5.19833458
+
+
+----------------- 10 -----------------
+Data:           BTC/USDT 1D
+Params:         5006001
+Batch size:     32
+Epochs:         10000
+Loss:           MAPE
+Weights saved:  Best
+
+MSE: 3252413.37815814
+MAPE: 4.71996336
+
+
+----------------- 11 -----------------
+Data:           BTC/USDT 1D
+Params:         5006001
+Batch size:     32
+Epochs:         10000
+Loss:           MAPE
+Weights saved:  Best
+Dropout:        0.2
+
+MSE: 25185473.05611797
+MAPE: 14.12942472
+
+
+----------------- 12 -----------------
+Data:           BTC/USDT 1D
+Params:         5006001
+Batch size:     32
+Epochs:         50000
+Loss:           MAPE
+Weights saved:  Best
+
+MSE: 
+MAPE: 

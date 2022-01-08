@@ -1,106 +1,48 @@
 import numpy as np
-import os
-from random import random, seed
-
 from tensorflow import keras
 from tensorflow.keras import layers
+from save_best_model import *
+from split_data import *
+from evaluate_model import *
 
-seed(0)
-
-train_split = 0.8
-val_split = 0.1
-test_split = 0.1
-
-
-def read_data(files):
-    inputs = []
-    outputs = []
-    for file_name in files:
-        file_path = os.path.join(data_directory, file_name)
-
-        if os.path.isfile(file_path):
-            file = open(file_path, 'r')
-            # There should be 505 lines in the file:
-            # 500 correponding to the input - 100 days of klines
-            # 145 unused - 29 days of klines
-            # 5 correponding to the input - kline of final day
-            lines = []
-            for _ in range(130 * 5):
-                lines.append(file.readline())
-
-            input = []
-            i = 0
-            for line in lines[:-30 * 5]:
-                input.append(float(line))
-                i += 1
-            inputs.append(input)
-
-            output = []
-            line = lines[-2]
-            output.append(float(line))
-            outputs.append(output)
-
-    return np.array(inputs), np.array(outputs)
-
+model_name='12'
 
 if __name__ == '__main__':
-    data_directory = 'data/btc_usdt/1D/'
-    files_train = []
-    files_val = []
-    files_test = []
-    for file_name in os.listdir(data_directory):
-        random_value = random()
-        if (random_value < train_split):
-            files_train.append(file_name)
-        elif (random_value < train_split + val_split):
-            files_val.append(file_name)
-        else:
-            files_test.append(file_name)
-
-    train_inputs, train_outputs = read_data(files_train)
-    val_inputs, val_outputs = read_data(files_val)
-    test_inputs, test_outputs = read_data(files_test)
+    (
+        train_inputs,
+        train_outputs,
+        val_inputs,
+        val_outputs,
+        test_inputs,
+        test_outputs
+    ) = get_split_data('data/btc_usdt/1D/')
 
     model_inputs = keras.Input(shape=(500,))
-    # initial
-    # x = layers.Dense(256, activation='relu')(model_inputs)
-    # x = layers.Dense(256, activation='relu')(x)
-    # x = layers.Dense(128, activation='relu')(x)
-    # x = layers.Dense(128, activation='relu')(x)
-    # x = layers.Dense(64, activation='relu')(x)
-    # small
-    # x = layers.Dense(64, activation='relu')(model_inputs)
-    # x = layers.Dense(64, activation='relu')(x)
-    # large
-    x = layers.Dense(256, activation='relu')(model_inputs)
-    x = layers.Dense(256, activation='relu')(x)
-    x = layers.Dense(256, activation='relu')(x)
-    x = layers.Dense(256, activation='relu')(x)
-    x = layers.Dense(256, activation='relu')(x)
-    x = layers.Dense(256, activation='relu')(x)
-    x = layers.Dense(256, activation='relu')(x)
+    x = layers.Dense(2000, activation='relu')(model_inputs)
+    # x = layers.Dropout(rate=0.2)(x)
+    x = layers.Dense(2000, activation='relu')(x)
+    # x = layers.Dropout(rate=0.2)(x)
     model_outputs = layers.Dense(1)(x)
-    # model = keras.Model(inputs=model_inputs, outputs=model_outputs, name='3_btc_usdt_1d_close_in_one_month_batch4_small')
-    model = keras.Model(inputs=model_inputs, outputs=model_outputs, name='3_btc_usdt_1d_close_in_one_month_batch4_large')
+    model = keras.Model(inputs=model_inputs, outputs=model_outputs, name=model_name)
     model.summary()
 
     model.compile(
-        loss=keras.losses.MeanSquaredError(),
+        loss=keras.losses.MeanAbsolutePercentageError(),
         optimizer=keras.optimizers.RMSprop(),
-        metrics=['accuracy'],
+        metrics=['mean_absolute_percentage_error'],
     )
 
-    history = model.fit(train_inputs, train_outputs, batch_size=4, epochs=10000, validation_data=(val_inputs, val_outputs))
+    save_best_model = SaveBestModel(model_name)
+    history = model.fit(
+        train_inputs,
+        train_outputs,
+        batch_size=32,
+        epochs=50000,
+        validation_data=(val_inputs, val_outputs),
+        callbacks=[save_best_model]
+    )
 
-    for i in range(len(test_inputs)):
-        print(f'Actual: {test_outputs[i]}')
-        print(
-            f'Prediction: {model(np.array([test_inputs[i]])).numpy()[0][0]}'
-        )
+    model.set_weights(save_best_model.best_weights)
+    model.save(f'models/{model_name}')
 
-    test_scores = model.evaluate(test_inputs, test_outputs, verbose=2)
-    print('Test loss:', test_scores[0])
-    print('Test accuracy:', test_scores[1])
-
-    # model.save('models/3_btc_usdt_1d_close_in_one_month_batch4_small')
-    model.save('models/3_btc_usdt_1d_close_in_one_month_batch4_large')
+    evaluate_model(model_name)
