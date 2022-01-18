@@ -6,27 +6,31 @@ train_split = 0.8
 val_split = 0.1
 test_split = 0.1
 
-def read_data(files, data_directory):
+def read_data(files, data_directory, data_period, exclude_volume):
     inputs = []
     outputs = []
+    total_entries = 0
+    input_entries = 0
+    if data_period == '1H':
+        total_entries = 192
+        input_entries = 144
+
     for file_name in files:
         file_path = os.path.join(data_directory, file_name)
 
         if os.path.isfile(file_path):
             file = open(file_path, 'r')
-            # There should be 505 lines in the file:
-            # 500 correponding to the input - 100 days of klines
-            # 145 unused - 29 days of klines
-            # 5 correponding to the input - kline of final day
             lines = []
-            for _ in range(130 * 5):
+            for _ in range(total_entries * 5):
                 lines.append(file.readline())
 
             input = []
             i = 0
-            for line in lines[:-30 * 5]:
-                input.append(float(line))
+            for line in lines[:input_entries * 5]:
                 i += 1
+                if exclude_volume and i % 5 == 0:
+                    continue
+                input.append(float(line))
             inputs.append(input)
 
             output = []
@@ -37,7 +41,7 @@ def read_data(files, data_directory):
     return np.array(inputs), np.array(outputs)
 
 
-def get_split_data(data_directory):
+def get_split_data(data_directory, data_period, exclude_volume):
     files_train = []
     files_val = []
     files_test = []
@@ -51,9 +55,9 @@ def get_split_data(data_directory):
         else:
             files_test.append(file_name)
 
-    train_inputs, train_outputs = read_data(files_train, data_directory)
-    val_inputs, val_outputs = read_data(files_val, data_directory)
-    test_inputs, test_outputs = read_data(files_test, data_directory)
+    train_inputs, train_outputs = read_data(files_train, data_directory, data_period, exclude_volume)
+    val_inputs, val_outputs = read_data(files_val, data_directory, data_period, exclude_volume)
+    test_inputs, test_outputs = read_data(files_test, data_directory, data_period, exclude_volume)
 
     return (
         train_inputs,

@@ -1,37 +1,29 @@
 from tensorflow import keras
 from split_data import *
 
-def evaluate_model(model_name):
-    model = keras.models.load_model(f'models/{model_name}')
+def evaluate_model(ticker, model_name, period_model, period_data, exclude_volume, print_preditions=False):
+    model = keras.models.load_model(f'models/{ticker}/{period_model}/{model_name}')
 
-    _, _, _, _, test_inputs, test_outputs = get_split_data('data/btc_usdt/1D/')
+    _, _, _, _, test_inputs, test_outputs = get_split_data(f'data/{ticker}/{period_data}/', period_data, exclude_volume)
 
-    total_squared_error = 0
     total_absolute_percentage_error = 0
     for i in range(len(test_inputs)):
         actual = test_outputs[i]
         prediction = model(np.array([test_inputs[i]])).numpy()[0][0]
-        # print(f'Actual: {actual}')
-        # print(f'Prediction: {prediction}')
-        # print()
+        if print_preditions:
+            print(f'Actual: {actual}')
+            print(f'Prediction: {prediction}')
+            print()
 
         error = actual - prediction
-        total_squared_error += pow(error, 2)
         total_absolute_percentage_error += abs(error / actual * 100)
 
-    mean_squared_error = total_squared_error / len(test_inputs)
     mean_absolute_percentage_error = total_absolute_percentage_error / len(test_inputs)
 
-    # test_scores = model.evaluate(test_inputs, test_outputs, verbose=0)
-
-    print('Model:', model_name)
-    # print('Test loss:', test_scores[0])
-    # print('Test accuracy:', test_scores[1])
-    print('MSE:', mean_squared_error)
-    print('MAPE:', mean_absolute_percentage_error)
     print()
+    print('Model:', model_name)
+    print('MAPE:', mean_absolute_percentage_error)
 
 
 if __name__ == '__main__':
-    for model_name in range(3, 12):
-        evaluate_model(model_name)
+    evaluate_model('ETHUSDT', '1', period_model='1H', period_data='1H', exclude_volume=True, print_preditions=False)
